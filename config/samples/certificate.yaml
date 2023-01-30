@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ciscocrd-sample-cert  #name of this object
+spec:
+  dnsNames:
+    - "cisco.local.com" #should be the same as in CRD
+  secretName: example-tls-cert
+  issuerRef:
+    name: letsencrypt-cluster-issuer
+    kind: ClusterIssuer

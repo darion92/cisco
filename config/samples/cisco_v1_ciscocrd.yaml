@@ -1,0 +1,16 @@
+apiVersion: cisco.kind-kind/v1
+kind: CiscoCRD
+metadata:
+  labels:
+    app.kubernetes.io/name: ciscocrd
+    app.kubernetes.io/instance: ciscocrd-sample
+    app.kubernetes.io/part-of: cisco
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: cisco
+  name: ciscocrd-sample
+spec:
+  # TODO(user): Add fields here
+  replicas: 2
+  containerImage: "nginx:latest"
+  host: "cisco.local.com"
+  port: 80
