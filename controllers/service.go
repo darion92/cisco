@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-// createService creates a backend service
+//You can customize by adding extra fields from this package : https://pkg.go.dev/
 func (r *CiscoCRDReconciler) createService(obj *ciscov1.CiscoCRD, labels map[string]string) *v1.Service {
 	service := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{

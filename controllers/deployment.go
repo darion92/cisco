@@ -9,6 +9,7 @@ import (
 	ciscov1 "operator-cisco/api/v1"
 )
 
+//You can customize by adding extra fields from this package : https://pkg.go.dev/
 func (r *CiscoCRDReconciler) createDeployment(obj *ciscov1.CiscoCRD, labels map[string]string) *v1.Deployment {
 	deployment := &v1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{

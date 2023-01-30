@@ -1,54 +1,79 @@
 # cisco
-// TODO(user): Add simple overview of use/purpose
+Here the instructions to run the operator that deploys ngnix application
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
 
-## Getting Started
-You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
-**Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
 
 ### Running on the cluster
+Within your cluster and under git repo:
+
 1. Install Instances of Custom Resources:
 
 ```sh
-kubectl apply -f config/samples/
+kubectl apply -f config/samples/cisco_v1_ciscocrd.yaml
+```
+```sh
+$ kubectl get CiscoCRD
+NAME              AGE
+ciscocrd-sample   24h
 ```
 
-2. Build and push your image to the location specified by `IMG`:
+2. Install Nginx Ingress Controller to publish the application
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/cisco:tag
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/deploy.yaml
+kubectl patch deployment ingress-nginx-controller -n ingress-nginx -p '{"spec":{"template":{"spec":{"hostNetwork":true}}}}'
 ```
-
-3. Deploy the controller to the cluster with the image specified by `IMG`:
+check that the IP of node is same as the one of controller
 
 ```sh
-make deploy IMG=<some-registry>/cisco:tag
+kubectl get nodes -o wide
+NAME                 STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+kind-control-plane   Ready    control-plane   25h   v1.25.3   172.28.0.2    <none>        Ubuntu 22.04.1 LTS   5.15.0-56-generic   containerd://1.6.9
+
+kubectl get pod -n ingress-nginx -o wide
+NAME                                        READY   STATUS      RESTARTS   AGE   IP           NODE                 NOMINATED NODE   READINESS GATES
+ingress-nginx-controller-787db7674b-trcdm   1/1     Running     0          25h   172.28.0.2   kind-control-plane   <none>           <none>
 ```
 
-### Uninstall CRDs
-To delete the CRDs from the cluster:
+3. Install cert-manager:
 
 ```sh
-make uninstall
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
 ```
-
-### Undeploy controller
-UnDeploy the controller from the cluster:
+check that all the pods are running
 
 ```sh
-make undeploy
+kubectl -n cert-manager get po
+NAME                                      READY   STATUS    RESTARTS   AGE
+cert-manager-99bb69456-4v74x              1/1     Running   0          25h
+cert-manager-cainjector-ffb4747bb-4tpbr   1/1     Running   0          25h
+cert-manager-webhook-545bd5d7d8-44rr6     1/1     Running   0          25h
 ```
 
-## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+4. Install certificate issuer:
 
-### How it works
-This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
+```sh
+kubectl apply -f config/samples/letsencrypt-cluster-issuer.yaml
+```
+Check that's ready :
 
-It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/),
-which provide a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
+```sh
+kubectl get ClusterIssuer -n cert-manager
+NAME                         READY   AGE
+letsencrypt-cluster-issuer   True    25h
+```
+
+5. Install the certificate:
+```sh
+kubectl apply -f config/samples/certificate.yaml
+```
+Important : the DNS name specified in the certificate should be resolvable via DNS Server otherwise this step will fail
+
+Once the certificate has been issued you should see it in Kubernetes secrets.
+```sh
+kubectl get secrets
+```
 
 ### Test It Out
 1. Install the CRDs into the cluster:
@@ -62,33 +87,26 @@ make install
 ```sh
 make run
 ```
-
-**NOTE:** You can also run this in one step by running: `make install run`
-
-### Modifying the API definitions
-If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
+all the resources should be deployed :
 
 ```sh
-make manifests
+kubectl get all
+NAME                                   READY   STATUS    RESTARTS   AGE
+pod/ciscocrd-sample-5799c9b9cd-8tcnk   1/1     Running   0          25h
+pod/ciscocrd-sample-5799c9b9cd-9mtlk   1/1     Running   0          25h
+
+NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/ciscocrd-sample   ClusterIP   10.96.104.87   <none>        80/TCP,443/TCP   25h
+service/kubernetes        ClusterIP   10.96.0.1      <none>        443/TCP          25h
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ciscocrd-sample   2/2     2            2           25h
+
+NAME                                         DESIRED   CURRENT   READY   AGE
+replicaset.apps/ciscocrd-sample-5799c9b9cd   2         2         2       25h
+
+kubectl get ingress
+NAME                      CLASS   HOSTS             ADDRESS      PORTS     AGE
+ciscocrd-sample-ingress   nginx   cisco.local.com   172.28.0.2   80, 443   22h
 ```
-
-**NOTE:** Run `make --help` for more information on all potential `make` targets
-
-More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
-## License
-
-Copyright 2023.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+Important : To be able to access the service from outside the cluster the service should be deployed as a Load Balancer, in this case it will have an assigned External_IP adress

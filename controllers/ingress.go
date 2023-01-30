@@ -22,6 +22,7 @@ func (r *CiscoCRDReconciler) createIngress(obj *ciscov1.CiscoCRD, labels map[str
 				UID:        obj.UID,
 			}},
 		},
+		//You can customize by adding extra fields from this package : https://pkg.go.dev/k8s.io/api/networking/v1
 		Spec: networkingv1.IngressSpec{
 			TLS: []networkingv1.IngressTLS{
 				{
