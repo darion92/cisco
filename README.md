@@ -109,4 +109,4 @@ kubectl get ingress
 NAME                      CLASS   HOSTS             ADDRESS      PORTS     AGE
 ciscocrd-sample-ingress   nginx   cisco.local.com   172.28.0.2   80, 443   22h
 ```
-Important : To be able to access the service from outside the cluster the service should be deployed as a Load Balancer, in this case it will have an assigned External_IP adress
+Important : To be able to access the service from outside the cluster the service should be deployed as a Load Balancer, in this case it will have an assigned External_IP adress.
