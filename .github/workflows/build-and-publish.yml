@@ -36,7 +36,7 @@ jobs:
         with:
           context: .
           # Note: tags has to be all lower-case
-          tags: ${{ env.REGISTRY }}/${{ github.repository }}/server:${{ github.sha }}
+          tags: ghcr.io/cisco/operator:latest
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/master' }}
 
