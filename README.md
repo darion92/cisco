@@ -75,7 +75,7 @@ Once the certificate has been issued you should see it in Kubernetes secrets.
 kubectl get secrets
 ```
 
-### Test It Out
+### Test within git repo
 1. Install the CRDs into the cluster:
 
 ```sh
@@ -110,3 +110,20 @@ NAME                      CLASS   HOSTS             ADDRESS      PORTS     AGE
 ciscocrd-sample-ingress   nginx   cisco.local.com   172.28.0.2   80, 443   22h
 ```
 Important : To be able to access the service from outside the cluster the service should be deployed as a Load Balancer, in this case it will have an assigned External_IP adress.
+
+
+### Test with published image
+1. Pull docker image:
+
+```sh
+docker pull ghcr.io/darion92/cisco/operator:latest
+```
+
+2. Deploy the controller to the cluster with image specified by IMG:
+
+```sh
+make deploy IMG=ghcr.io/darion92/cisco/operator
+```
+
+
+Important note : for local test don't forget to add the host pointing to the node IP in /etc/hosts
