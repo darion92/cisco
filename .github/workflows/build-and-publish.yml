@@ -36,8 +36,7 @@ jobs:
         with:
           context: .
           # Note: tags has to be all lower-case
-          tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}/server:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/server:${{ github.sha }}
           # build on feature branches, push only on main branch
           push: ${{ github.ref == 'refs/heads/master' }}
 
