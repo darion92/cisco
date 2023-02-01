@@ -34,11 +34,12 @@ jobs:
       - name: Build image and push to Docker Hub and GitHub Container Registry
         uses: docker/build-push-action@v2
         with:
+          context: .
           # Note: tags has to be all lower-case
           tags: |
             cisco/operator:latest
           # build on feature branches, push only on main branch
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
