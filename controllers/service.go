@@ -8,7 +8,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 )
 
-//You can customize by adding extra fields from this package : https://pkg.go.dev/
+// You can customize by adding extra fields from this package : https://pkg.go.dev/
 func (r *CiscoCRDReconciler) createService(obj *ciscov1.CiscoCRD, labels map[string]string) *v1.Service {
 	service := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -28,11 +28,6 @@ func (r *CiscoCRDReconciler) createService(obj *ciscov1.CiscoCRD, labels map[str
 				{
 					Name:       "httpport",
 					Port:       80,
-					TargetPort: intstr.FromInt(80),
-				},
-				{
-					Name:       "httpsport",
-					Port:       443,
 					TargetPort: intstr.FromInt(80),
 				},
 			},

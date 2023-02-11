@@ -11,10 +11,9 @@ func (r *CiscoCRDReconciler) createIngress(obj *ciscov1.CiscoCRD, labels map[str
 	prefix := networkingv1.PathType("Prefix")
 	ingress := &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:        labels["name"] + "-ingress",
-			Namespace:   labels["namespace"],
-			Labels:      labels,
-			Annotations: map[string]string{"cert-manager.io/cluster-issuer": "letsencrypt-cluster-issuer"},
+			Name:      labels["name"] + "-ingress",
+			Namespace: labels["namespace"],
+			Labels:    labels,
 			OwnerReferences: []metav1.OwnerReference{{
 				APIVersion: obj.APIVersion,
 				Kind:       obj.Kind,
@@ -24,12 +23,6 @@ func (r *CiscoCRDReconciler) createIngress(obj *ciscov1.CiscoCRD, labels map[str
 		},
 		//You can customize by adding extra fields from this package : https://pkg.go.dev/k8s.io/api/networking/v1
 		Spec: networkingv1.IngressSpec{
-			TLS: []networkingv1.IngressTLS{
-				{
-					SecretName: "ciscocrd-sample-cert",
-					Hosts:      []string{obj.Spec.Host},
-				},
-			},
 			Rules: []networkingv1.IngressRule{
 				{
 					Host: obj.Spec.Host,
