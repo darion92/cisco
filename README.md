@@ -7,6 +7,12 @@ Here the instructions to run the operator that deploys ngnix application
 ### Running on the cluster
 Within your cluster and under git repo:
 
+0. Install the CRDs into the cluster:
+
+```sh
+make install
+```
+
 1. Install Instances of Custom Resources:
 
 ```sh
@@ -36,53 +42,7 @@ NAME                                        READY   STATUS      RESTARTS   AGE  
 ingress-nginx-controller-787db7674b-trcdm   1/1     Running     0          25h   172.28.0.2   kind-control-plane   <none>           <none>
 ```
 
-3. Install cert-manager:
-
-```sh
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
-```
-check that all the pods are running
-
-```sh
-kubectl -n cert-manager get po
-NAME                                      READY   STATUS    RESTARTS   AGE
-cert-manager-99bb69456-4v74x              1/1     Running   0          25h
-cert-manager-cainjector-ffb4747bb-4tpbr   1/1     Running   0          25h
-cert-manager-webhook-545bd5d7d8-44rr6     1/1     Running   0          25h
-```
-
-4. Install certificate issuer:
-
-```sh
-kubectl apply -f config/samples/letsencrypt-cluster-issuer.yaml
-```
-Check that's ready :
-
-```sh
-kubectl get ClusterIssuer -n cert-manager
-NAME                         READY   AGE
-letsencrypt-cluster-issuer   True    25h
-```
-
-5. Install the certificate:
-```sh
-kubectl apply -f config/samples/certificate.yaml
-```
-Important : the DNS name specified in the certificate should be resolvable via DNS Server otherwise this step will fail
-
-Once the certificate has been issued you should see it in Kubernetes secrets.
-```sh
-kubectl get secrets
-```
-
-### Test within git repo
-1. Install the CRDs into the cluster:
-
-```sh
-make install
-```
-
-2. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
+3. Run your controller (this will run in the foreground, so switch to a new terminal if you want to leave it running):
 
 ```sh
 make run
